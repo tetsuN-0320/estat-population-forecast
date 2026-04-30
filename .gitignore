@@ -1,0 +1,49 @@
+# === 環境変数・シークレット ===
+.env
+*.env
+
+# === 生データ・キャッシュ（APIで再取得可能なため除外） ===
+data/raw/
+data/processed/
+data/forecast/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# === 仮想環境 ===
+venv/
+.venv/
+env/
+.env/
+
+# === Jupyter ===
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# === テスト・カバレッジ ===
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === ビルド成果物（GitHub Pages デプロイ前は除外しない） ===
+# web/static/data/*.json  ← コミット対象にするため除外しない
