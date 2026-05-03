@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本の人口動態予測 (1990–2050)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/main.css">
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    日本の人口動態予測
+    <span>Population Forecast Japan 1990–2050</span>
+  </div>
+  <nav>
+    <a href="index.html" class="active">地図</a>
+    <a href="about.html">プロジェクトについて</a>
+  </nav>
+</header>
+
+<div class="page-container">
+  <h1 class="page-title">都道府県別 人口推移マップ</h1>
+  <p class="page-subtitle">
+    スライダーを動かして年を選択。都道府県をクリックすると詳細（ピラミッド・予測グラフ）を表示します。
+  </p>
+
+  <div class="map-layout">
+
+    <!-- ===== 地図 ===== -->
+    <div class="card" id="map-card">
+      <div class="loading-overlay" id="map-loading">
+        <div class="spinner"></div>
+      </div>
+      <svg id="japan-map" role="img" aria-label="日本の都道府県別人口コロプレスマップ"></svg>
+    </div>
+
+    <!-- ===== コントロールパネル ===== -->
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+
+      <!-- 年スライダー -->
+      <div class="card controls-card">
+        <div class="control-section">
+          <label>表示年</label>
+          <div>
+            <span class="year-display" id="year-display">2020</span>
+            <span class="year-tag historical" id="year-tag">実績値</span>
+          </div>
+          <input type="range" id="year-slider" min="0" max="12" value="6" step="1">
+          <div class="year-ticks">
+            <span>1990</span><span>2000</span><span>2010</span><span>2020</span><span>2030</span><span>2040</span><span>2050</span>
+          </div>
+          <button class="play-btn" id="play-btn">
+            <span id="play-icon">▶</span>
+            <span id="play-label">アニメーション再生</span>
+          </button>
+        </div>
+
+        <!-- モデル選択（予測年のみ有効） -->
+        <div class="control-section" id="model-section">
+          <label>予測モデル <span style="font-weight:400;text-transform:none;letter-spacing:0">(2025〜2050年)</span></label>
+          <div class="model-selector">
+            <button class="model-btn active" data-model="cohort">
+              コーホート要因法 <span class="model-tag">主推計</span>
+            </button>
+            <button class="model-btn" data-model="prophet">
+              Prophet <span class="model-tag">時系列</span>
+            </button>
+            <button class="model-btn" data-model="arima">
+              ARIMA <span class="model-tag">時系列</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 色凡例 -->
+        <div class="control-section">
+          <label>色：2020年比 人口変化率</label>
+          <div class="legend-wrap">
+            <canvas class="legend-gradient" id="legend-canvas"></canvas>
+            <div class="legend-labels">
+              <span id="legend-min">−50%</span>
+              <span>0%</span>
+              <span id="legend-max">+15%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 選択中の都道府県情報 -->
+      <div class="card" id="info-panel">
+        <p class="info-placeholder">都道府県を選択してください</p>
+      </div>
+
+      <!-- 変化率ランキング -->
+      <div class="card">
+        <div class="chart-title">
+          2020→2050年 変化率
+          <span class="chart-subtitle" id="ranking-model-label">（コーホート法）</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+          <div>
+            <div style="font-size:.75rem;color:var(--color-muted);margin-bottom:.3rem;">減少率 上位5</div>
+            <ul class="ranking-list" id="rank-decrease"></ul>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:var(--color-muted);margin-bottom:.3rem;">減少率 下位5</div>
+            <ul class="ranking-list" id="rank-increase"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /controls -->
+  </div><!-- /map-layout -->
+</div><!-- /page-container -->
+
+<footer>
+  <p>データ出典: 総務省統計局 e-Stat 国勢調査 / 国立社会保障・人口問題研究所（社人研）将来推計人口</p>
+  <p style="margin-top:.3rem;">© 2024 <a href="about.html">中江 哲夫</a> — ポートフォリオ作品</p>
+</footer>
+
+<div id="tooltip">
+  <div class="tip-name" id="tip-name"></div>
+  <div class="tip-pop"  id="tip-pop"></div>
+  <div class="tip-chg"  id="tip-chg"></div>
+</div>
+
+<!-- D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="static/js/map.js"></script>
+
+</body>
+</html>

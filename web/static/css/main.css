@@ -1,0 +1,485 @@
+/* =====================================================
+   日本の人口動態予測 - メインスタイルシート
+   ===================================================== */
+
+/* ---------- リセット・基本 ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary:   #1a4a8a;
+  --color-accent:    #e05c2b;
+  --color-bg:        #f5f7fa;
+  --color-surface:   #ffffff;
+  --color-border:    #dde2ea;
+  --color-text:      #1e2b3c;
+  --color-muted:     #6b7a93;
+  --color-decline:   #c0392b;  /* 人口減少 */
+  --color-growth:    #2471a3;  /* 人口増加 */
+  --shadow-sm:       0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:       0 4px 16px rgba(0,0,0,.12);
+  --radius:          8px;
+  --font-sans:       'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
+  --font-mono:       'Courier New', monospace;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ---------- ヘッダー ---------- */
+header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+
+.header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+.header-title span {
+  font-size: .75rem;
+  font-weight: 400;
+  opacity: .8;
+  margin-left: .5rem;
+}
+
+nav a {
+  color: rgba(255,255,255,.85);
+  text-decoration: none;
+  font-size: .875rem;
+  margin-left: 1.5rem;
+  transition: color .2s;
+}
+nav a:hover, nav a.active { color: #fff; }
+
+/* ---------- メインレイアウト ---------- */
+.page-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: .25rem;
+}
+
+.page-subtitle {
+  font-size: .9rem;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ---------- カード ---------- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- 地図ページ レイアウト ---------- */
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  grid-template-rows: auto;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .map-layout { grid-template-columns: 1fr; }
+}
+
+/* ---------- 地図 SVG ---------- */
+#map-card {
+  position: relative;
+  min-height: 500px;
+}
+
+#japan-map {
+  width: 100%;
+  height: 520px;
+  display: block;
+}
+
+.prefecture-path {
+  stroke: #fff;
+  stroke-width: .6;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.prefecture-path:hover { opacity: .8; stroke-width: 1.5; stroke: #333; }
+.prefecture-path.selected { stroke: #333; stroke-width: 2; }
+
+/* ---------- コントロールパネル ---------- */
+.controls-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.control-section label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .5rem;
+}
+
+.year-display {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: .5rem;
+}
+
+.year-tag {
+  display: inline-block;
+  font-size: .7rem;
+  padding: .15rem .5rem;
+  border-radius: 99px;
+  margin-left: .4rem;
+  font-weight: 600;
+}
+.year-tag.historical { background: #e8f0fe; color: #1a4a8a; }
+.year-tag.forecast   { background: #fce8d8; color: #c0392b; }
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.year-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: .65rem;
+  color: var(--color-muted);
+  margin-top: .25rem;
+}
+
+/* 再生ボタン */
+.play-btn {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: .5rem;
+}
+.play-btn:hover { background: #15387a; }
+.play-btn.playing { background: var(--color-accent); }
+
+/* モデルセレクター */
+.model-selector {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.model-btn {
+  padding: .45rem .75rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: .82rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  color: var(--color-text);
+}
+.model-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.model-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+.model-btn .model-tag {
+  font-size: .7rem;
+  opacity: .75;
+  margin-left: .3rem;
+}
+
+/* ---------- 凡例 ---------- */
+.legend-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.legend-gradient {
+  width: 100%;
+  height: 14px;
+  border-radius: 4px;
+}
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: .7rem;
+  color: var(--color-muted);
+}
+
+/* ---------- 情報パネル ---------- */
+#info-panel {
+  min-height: 80px;
+}
+
+.info-pref-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: .25rem;
+}
+.info-pop {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: .25rem;
+}
+.info-change {
+  font-size: .875rem;
+  font-weight: 600;
+}
+.info-change.negative { color: var(--color-decline); }
+.info-change.positive { color: var(--color-growth); }
+.info-placeholder {
+  font-size: .85rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* 都道府県ランキング */
+.ranking-list {
+  list-style: none;
+  font-size: .8rem;
+}
+.ranking-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .3rem .25rem;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background .1s;
+}
+.ranking-list li:hover { background: #f0f4fc; }
+.ranking-list li .rank { color: var(--color-muted); width: 1.5rem; }
+.ranking-list li .pref { flex: 1; }
+.ranking-list li .val { font-weight: 600; }
+.ranking-list li .val.negative { color: var(--color-decline); }
+.ranking-list li .val.positive { color: var(--color-growth); }
+
+/* ---------- ツールチップ ---------- */
+#tooltip {
+  position: fixed;
+  background: rgba(15,25,50,.9);
+  color: #fff;
+  padding: .6rem .9rem;
+  border-radius: var(--radius);
+  font-size: .8rem;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  display: none;
+}
+#tooltip .tip-name { font-weight: 700; font-size: .9rem; margin-bottom: .2rem; }
+#tooltip .tip-pop  { font-size: .85rem; }
+#tooltip .tip-chg  { font-size: .8rem; margin-top: .15rem; }
+#tooltip .tip-chg.neg { color: #f1948a; }
+#tooltip .tip-chg.pos { color: #85c1e9; }
+
+/* ---------- 都道府県詳細ページ ---------- */
+.pref-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pref-header h1 { font-size: 1.8rem; color: var(--color-primary); }
+.back-link {
+  font-size: .85rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  margin-bottom: 1rem;
+}
+.back-link:hover { text-decoration: underline; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 820px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+.chart-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+.chart-subtitle {
+  font-size: .75rem;
+  color: var(--color-muted);
+  margin-left: .5rem;
+  font-weight: 400;
+}
+
+/* ピラミッド */
+.pyramid-controls {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+.pyramid-year-btn {
+  padding: .25rem .6rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 4px;
+  font-size: .78rem;
+  cursor: pointer;
+  background: var(--color-surface);
+  transition: all .15s;
+}
+.pyramid-year-btn:hover { border-color: var(--color-primary); }
+.pyramid-year-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+.pyramid-year-btn.forecast-year { border-style: dashed; }
+.pyramid-year-btn.forecast-year.active { border-style: solid; }
+
+#pyramid-svg { width: 100%; }
+
+/* ピラミッド 凡例 */
+.pyramid-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: .75rem;
+  margin-top: .5rem;
+  justify-content: center;
+}
+.pyramid-legend span { display: flex; align-items: center; gap: .35rem; }
+.legend-box {
+  width: 12px; height: 12px; border-radius: 2px; display: inline-block;
+}
+.legend-box.male   { background: #2471a3; }
+.legend-box.female { background: #c0392b; }
+
+/* 時系列グラフ */
+#timeseries-chart-wrap { position: relative; height: 340px; }
+
+/* モデル凡例 */
+.model-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: .75rem;
+  font-size: .75rem;
+}
+.model-legend-item {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.legend-line {
+  width: 20px; height: 3px; border-radius: 2px; display: inline-block;
+}
+
+/* ---------- About ページ ---------- */
+.about-section { margin-bottom: 2rem; }
+.about-section h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: .75rem;
+  padding-bottom: .4rem;
+  border-bottom: 2px solid var(--color-primary);
+}
+.about-section p { font-size: .9rem; line-height: 1.8; margin-bottom: .75rem; }
+.about-section ul { font-size: .9rem; line-height: 1.8; padding-left: 1.5rem; }
+
+.data-source-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+  margin-top: .5rem;
+}
+.data-source-table th, .data-source-table td {
+  text-align: left;
+  padding: .5rem .75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.data-source-table th { background: #f0f4fc; font-weight: 600; }
+
+/* ---------- フッター ---------- */
+footer {
+  background: var(--color-primary);
+  color: rgba(255,255,255,.7);
+  text-align: center;
+  font-size: .78rem;
+  padding: 1.25rem;
+  margin-top: 3rem;
+}
+footer a { color: rgba(255,255,255,.85); }
+
+/* ---------- ローディング ---------- */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  z-index: 50;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 4px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- ユーティリティ ---------- */
+.text-center { text-align: center; }
+.mt-1 { margin-top: .5rem; }
+.mt-2 { margin-top: 1rem; }
+.hidden { display: none !important; }

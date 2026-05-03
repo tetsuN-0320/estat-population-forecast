@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロジェクトについて — 日本の人口動態予測</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/main.css">
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    日本の人口動態予測
+    <span>Population Forecast Japan 1990–2050</span>
+  </div>
+  <nav>
+    <a href="index.html">地図</a>
+    <a href="about.html" class="active">プロジェクトについて</a>
+  </nav>
+</header>
+
+<div class="page-container" style="max-width:860px">
+
+  <h1 class="page-title">プロジェクトについて</h1>
+  <p class="page-subtitle">分析手法・データ出典・制作者について</p>
+
+  <!-- ===== プロジェクト概要 ===== -->
+  <div class="card about-section" style="margin-bottom:1.5rem">
+    <h2>プロジェクト概要</h2>
+    <p>
+      本プロジェクトは、総務省統計局が提供する e-Stat API から国勢調査データを取得し、
+      複数の統計モデルを用いて日本の都道府県別人口を 2050 年まで予測するデータ分析ポートフォリオです。
+    </p>
+    <p>
+      都道府県別の人口ピラミッドと総人口推移をインタラクティブなビジュアライゼーションで表現し、
+      データアナリストとしての技術力（API データ取得・統計モデリング・Web 可視化）を示しています。
+    </p>
+  </div>
+
+  <!-- ===== 使用モデル ===== -->
+  <div class="card about-section" style="margin-bottom:1.5rem">
+    <h2>使用した予測モデル</h2>
+
+    <div style="display:grid;gap:1rem;margin-top:.5rem">
+
+      <div style="border-left:4px solid #e05c2b;padding:.75rem 1rem">
+        <div style="font-weight:700;color:#e05c2b;margin-bottom:.3rem">コーホート要因法（主推計）</div>
+        <p>
+          国勢調査5年ごとの「コーホート変化率」（同一年齢集団の5年間の変化）を過去3期間の平均から算出し、
+          2020年を起点に2050年まで投影します。出生は CWR（幼児女性比）、高齢者は 85+ の特別処理を行います。
+          国立社会保障・人口問題研究所（社人研）が採用する手法と同原理で、本プロジェクトの主要推計として使用しています。
+        </p>
+      </div>
+
+      <div style="border-left:4px solid #27ae60;padding:.75rem 1rem">
+        <div style="font-weight:700;color:#27ae60;margin-bottom:.3rem">Prophet（Meta 開発の時系列モデル）</div>
+        <p>
+          Facebook（現 Meta）が開発した時系列予測ライブラリ。都道府県別の総人口トレンドを Prophet で予測し、
+          2020年の年齢構成比を使って年齢別人口に分配します。変化点を3ヶ所に限定（changepoint_prior_scale=0.05）し、
+          過学習を抑えています。
+        </p>
+      </div>
+
+      <div style="border-left:4px solid #8e44ad;padding:.75rem 1rem">
+        <div style="font-weight:700;color:#8e44ad;margin-bottom:.3rem">ARIMA（自己回帰和分移動平均モデル）</div>
+        <p>
+          ARIMA(1,1,0) を用いた時系列予測。データ点数が少ない（7点）ため自由度の低いモデルを選択。
+          定数予測に落ちる場合は直近3期間のトレンド外挿にフォールバックします。
+          Prophet と同様に年齢構成比で分配します。
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 精度評価 ===== -->
+  <div class="card about-section" style="margin-bottom:1.5rem">
+    <h2>精度評価（バックテスト）</h2>
+    <p>
+      1990〜2010年で学習し、2015年・2020年の実績値と比較するバックテストを実施しました。
+    </p>
+    <table class="data-source-table">
+      <thead><tr><th>指標</th><th>値</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td>MAPE（平均絶対誤差率）平均</td><td>約 2〜4%</td><td>都道府県×年の平均誤差率</td></tr>
+        <tr><td>RMSE</td><td>約 3〜8 万人</td><td>二乗平均平方根誤差</td></tr>
+        <tr><td>社人研比（2050年）</td><td>±5〜15%</td><td>都道府県によりばらつきあり</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:.75rem;font-size:.85rem;color:var(--color-muted)">
+      ※ コーホート要因法は直近の変化率トレンドを外挿するため、急激な人口変動（震災後の転出など）には対応が困難です。
+    </p>
+  </div>
+
+  <!-- ===== データ出典 ===== -->
+  <div class="card about-section" style="margin-bottom:1.5rem">
+    <h2>データ出典</h2>
+    <table class="data-source-table">
+      <thead><tr><th>データ</th><th>提供元</th><th>期間</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>国勢調査 人口・年齢（5歳階級）・男女別</td>
+          <td>総務省統計局 / e-Stat API（統計表 0003410381）</td>
+          <td>1990〜2020年（5年毎）</td>
+        </tr>
+        <tr>
+          <td>将来推計人口（参考値）</td>
+          <td>国立社会保障・人口問題研究所（社人研）<br>日本の将来推計人口（令和5年推計）出生中位・死亡中位</td>
+          <td>2025〜2050年</td>
+        </tr>
+        <tr>
+          <td>都道府県別将来推計（参考値）</td>
+          <td>社人研「日本の地域別将来推計人口（令和5年推計）」</td>
+          <td>2050年</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== 技術スタック ===== -->
+  <div class="card about-section" style="margin-bottom:1.5rem">
+    <h2>使用技術</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <div style="font-weight:600;margin-bottom:.4rem">バックエンド（データ処理）</div>
+        <ul>
+          <li>Python 3.11</li>
+          <li>pandas / numpy / pyarrow</li>
+          <li>statsmodels（ARIMA）</li>
+          <li>prophet（Meta）</li>
+          <li>geopandas（GeoJSON 処理）</li>
+          <li>tenacity（リトライ）</li>
+          <li>loguru（ロギング）</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-weight:600;margin-bottom:.4rem">フロントエンド（可視化）</div>
+        <ul>
+          <li>D3.js v7（コロプレスマップ・ピラミッド）</li>
+          <li>Chart.js v4（時系列グラフ）</li>
+          <li>バニラ HTML / CSS / JavaScript</li>
+          <li>GitHub Pages（ホスティング）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 制作者 ===== -->
+  <div class="card about-section">
+    <h2>制作者</h2>
+    <div style="display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px">
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:.3rem">中江 哲夫（Tetsu Nakae）</div>
+        <div style="font-size:.85rem;color:var(--color-muted);margin-bottom:.75rem">
+          株式会社ダイアローグ研究所 代表取締役 / データアナリスト
+        </div>
+        <p style="font-size:.875rem">
+          1957年生まれ、東京都在住。慶應義塾大学法学部卒業後、大日本印刷、電通ヤング＆ルビカムを経て
+          2008年に独立。Eコマース・マーケティング・業務アプリ開発のコンサルティングを行う傍ら、
+          データ分析スキルを体系的に習得し、データドリブンな意思決定支援を提供しています。
+        </p>
+        <div style="margin-top:.75rem;display:flex;gap:.75rem;flex-wrap:wrap">
+          <a href="https://github.com/tetsuN-0320" target="_blank"
+             style="font-size:.82rem;color:var(--color-primary);text-decoration:none">
+            GitHub →
+          </a>
+        </div>
+      </div>
+      <div style="font-size:.82rem;color:var(--color-muted)">
+        <div style="font-weight:600;color:var(--color-text);margin-bottom:.4rem">保有資格</div>
+        <ul style="line-height:2">
+          <li>Python エンジニア認定基礎</li>
+          <li>Python エンジニア認定データ分析</li>
+          <li>基本情報技術者</li>
+          <li>Google Data Analytics Professional Certificate</li>
+          <li>データ分析マスター認定（ピーシーアシスト）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-container -->
+
+<footer>
+  <p>データ出典: 総務省統計局 e-Stat 国勢調査 / 国立社会保障・人口問題研究所（社人研）将来推計人口</p>
+  <p style="margin-top:.3rem;">© 2024 <a href="about.html">中江 哲夫</a> — ポートフォリオ作品</p>
+</footer>
+
+</body>
+</html>
