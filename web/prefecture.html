@@ -26,12 +26,13 @@
   <a href="index.html" class="back-link">← 地図に戻る</a>
 
   <div class="pref-header">
-    <h1 id="pref-name">...</h1>
+    <h1 id="pref-name">読み込み中…</h1>
     <span id="pref-change-badge"></span>
   </div>
 
   <!-- サマリーカード -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;" id="summary-cards"></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem"
+       id="summary-cards"></div>
 
   <div class="detail-grid">
 
@@ -41,11 +42,29 @@
         人口ピラミッド
         <span class="chart-subtitle">（年齢5歳階級別・男女別）</span>
       </div>
+
+      <!-- 年齢構成比バー -->
+      <div id="age-composition" style="margin-bottom:.75rem"></div>
+
+      <!-- 年ボタン -->
       <div class="pyramid-controls" id="pyramid-year-btns"></div>
-      <svg id="pyramid-svg" height="400"></svg>
-      <div class="pyramid-legend">
-        <span><span class="legend-box male"></span> 男性</span>
-        <span><span class="legend-box female"></span> 女性</span>
+
+      <!-- 再生ボタン -->
+      <div id="pyramid-play-wrap"></div>
+
+      <!-- ピラミッド SVG -->
+      <svg id="pyramid-svg" width="100%" height="404" style="margin-top:.5rem"></svg>
+
+      <!-- 凡例 -->
+      <div class="pyramid-legend" style="margin-top:.5rem">
+        <span><span class="legend-box" style="background:#2471a3"></span> 男性（生産年齢）</span>
+        <span><span class="legend-box" style="background:#5dade2"></span> 男性（年少）</span>
+        <span><span class="legend-box" style="background:#1a5276"></span> 男性（老年）</span>
+      </div>
+      <div class="pyramid-legend" style="margin-top:.25rem">
+        <span><span class="legend-box" style="background:#c0392b"></span> 女性（生産年齢）</span>
+        <span><span class="legend-box" style="background:#e59866"></span> 女性（年少）</span>
+        <span><span class="legend-box" style="background:#922b21"></span> 女性（老年）</span>
       </div>
     </div>
 
@@ -55,18 +74,21 @@
         総人口の推移と予測
         <span class="chart-subtitle">（万人）</span>
       </div>
-      <div id="timeseries-chart-wrap">
+      <div id="timeseries-chart-wrap" style="position:relative">
         <canvas id="timeseries-chart"></canvas>
       </div>
-      <div class="model-legend" id="model-legend"></div>
+      <div style="margin-top:.6rem;font-size:.75rem;color:var(--color-muted);line-height:1.7">
+        ※ 網掛け部分はコーホート法・Prophet・ARIMA の3モデル幅（予測の不確実性の目安）
+      </div>
+      <div class="model-legend" id="model-legend" style="margin-top:.75rem"></div>
     </div>
 
   </div><!-- /detail-grid -->
 
-  <!-- 他の都道府県へのナビゲーション -->
-  <div style="margin-top:1.5rem;" class="card">
-    <div class="chart-title">他の都道府県</div>
-    <div id="pref-nav" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;"></div>
+  <!-- 他の都道府県 -->
+  <div style="margin-top:1.5rem" class="card">
+    <div class="chart-title">他の都道府県を見る</div>
+    <div id="pref-nav" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem"></div>
   </div>
 
 </div><!-- /page-container -->
