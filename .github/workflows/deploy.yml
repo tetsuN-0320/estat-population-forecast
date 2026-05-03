@@ -28,6 +28,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true   # Pages が未有効化でも自動で有効にする
 
       - name: Upload artifact (web/ フォルダを公開)
         uses: actions/upload-pages-artifact@v3
