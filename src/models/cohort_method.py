@@ -277,3 +277,48 @@ class CohortProjector:
             curr = nxt  # 次期の起点に更新
 
         return pd.DataFrame(results)
+
+    def _project_one_step(
+        self,
+        curr: dict[str, dict[str, float]],
+        pref_rates: pd.DataFrame,
+    ) -> dict[str, dict[str, float]]:
+        """1期分（5年）の人口投影を行い、次期の人口辞書を返す。
+
+        evaluator.py のバックテストから呼び出される共通ロジック。
+        """
+        def get_rate(rate_type: str, age: str, sex: str) -> float:
+            r = pref_rates[
+                (pref_rates["rate_type"] == rate_type)
+                & (pref_rates["age_group"] == age)
+                & (pref_rates["sex"] == sex)
+            ]["avg_rate"]
+            return float(r.iloc[0]) if not r.empty and not np.isnan(r.iloc[0]) else 1.0
+
+        nxt: dict[str, dict[str, float]] = {}
+
+        for i, age in enumerate(AGE_GROUPS[:-2]):
+            next_age = AGE_GROUPS[i + 1]
+            nxt[next_age] = {
+                "male":   curr.get(age, {}).get("male", 0)   * get_rate("cohort", age, "male"),
+                "female": curr.get(age, {}).get("female", 0) * get_rate("cohort", age, "female"),
+            }
+
+        pool_male   = curr.get("80-84", {}).get("male", 0)   + curr.get("85+", {}).get("male", 0)
+        pool_female = curr.get("80-84", {}).get("female", 0) + curr.get("85+", {}).get("female", 0)
+        nxt["85+"] = {
+            "male":   pool_male   * get_rate("cohort_85plus", "85+", "male"),
+            "female": pool_female * get_rate("cohort_85plus", "85+", "female"),
+        }
+
+        cwr = get_rate("cwr", "0-4", "both")
+        women_cb_next = sum(nxt.get(a, {}).get("female", 0) for a in CHILDBEARING_AGES)
+        total_04 = cwr * women_cb_next
+        p04_m = curr.get("0-4", {}).get("male", 0)
+        p04_f = curr.get("0-4", {}).get("female", 0)
+        sex_ratio_m = p04_m / (p04_m + p04_f) if (p04_m + p04_f) > 0 else 0.513
+        nxt["0-4"] = {
+            "male":   total_04 * sex_ratio_m,
+            "female": total_04 * (1 - sex_ratio_m),
+        }
+        return nxt
